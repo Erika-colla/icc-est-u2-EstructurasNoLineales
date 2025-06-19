@@ -5,28 +5,44 @@ import Materia.models.Node;
 public class ArbolBinario {
     private Node root;
 
-    public ArbolBinario(){
-        this.root=null;
+    public ArbolBinario() {
+        this.root = null;
     }
 
-    public void insert(int value){
-        root = insertRec(root,value);
+    public void insert(int value) {
+        root = insertRec(root, value);
     }
 
-    private Node insertRec(Node padre, int value){
-        if (padre== null){
-            return new Node(value);
+    private Node insertRec(Node node, int value) {
+        if (node == null) return new Node(value);
+
+        if (value < node.getValue()) {
+            node.setLeft(insertRec(node.getLeft(), value));
+        } else if (value > node.getValue()) {
+            node.setRight(insertRec(node.getRight(), value));
         }
-        if(value<padre.getValue()){
-            padre.setLeft(insertRec(padre.getLeft(), value));
-        } else if (value > padre.getValue()) {
-            padre.setRight(insertRec(padre.getRight(), value));
-        }
-
-        return padre;
+        return node;
     }
 
-    public void inOrderTraversal() {
+    public int contarNodos() {
+        return contarNodosRec(root);
+    }
+
+    private int contarNodosRec(Node node) {
+        if (node == null) return 0;
+        return 1 + contarNodosRec(node.getLeft()) + contarNodosRec(node.getRight());
+    }
+
+    public int getHeightRec() {
+        return getHeightRec(root);
+    }
+
+    private int getHeightRec(Node node) {
+        if (node == null) return 0;
+        return 1 + Math.max(getHeightRec(node.getLeft()), getHeightRec(node.getRight()));
+    }
+
+    public void inOrder() {
         inOrderRec(root);
         System.out.println();
     }
@@ -34,52 +50,61 @@ public class ArbolBinario {
     private void inOrderRec(Node node) {
         if (node != null) {
             inOrderRec(node.getLeft());
-            System.out.print(node.getValue() + " ");
+            System.out.print(node.getValue() + ", ");
             inOrderRec(node.getRight());
         }
     }
 
-    public void preOrderTraversal() {
-        preOrderRec(root);
+    public void inOrderConAlturas() {
+        inOrderConAlturasRec(root);
         System.out.println();
     }
 
-    private void preOrderRec(Node node) {
+    private void inOrderConAlturasRec(Node node) {
         if (node != null) {
-            System.out.print(node.getValue() + " ");
-            preOrderRec(node.getLeft());
-            preOrderRec(node.getRight());
+            inOrderConAlturasRec(node.getLeft());
+            System.out.print(node.getValue() + "(h=" + getHeightRec(node) + "), ");
+            inOrderConAlturasRec(node.getRight());
         }
     }
 
-    public void imprimir() {
-        imprimir(root);
+    public void inOrderConBalance() {
+        inOrderConBalanceRec(root);
+        System.out.println();
     }
 
-    private void imprimir(Node node) {
+    private void inOrderConBalanceRec(Node node) {
         if (node != null) {
-            imprimir(node.getLeft());
-            System.out.println(node.getValue()+ " ");
-            imprimir(node.getRight());
-        
-        }
-    }
-    public boolean buscar(int value) {
-        return buscarRec(root, value);
-    }
-
-    private boolean buscarRec(Node node, int value) {
-        if (node == null) {
-            return false;
-        }
-        if (value == node.getValue()) {
-            return true;
-        }
-        if (value < node.getValue()) {
-            return buscarRec(node.getLeft(), value);
-        } else {
-            return buscarRec(node.getRight(), value);
+            inOrderConBalanceRec(node.getLeft());
+            int bf = getHeightRec(node.getLeft()) - getHeightRec(node.getRight());
+            System.out.print(node.getValue() + " (bf=" + bf + "), ");
+            inOrderConBalanceRec(node.getRight());
         }
     }
 
+    public boolean arbolEquilibrado() {
+        return esEquilibrado(root);
+    }
+
+    private boolean esEquilibrado(Node node) {
+        if (node == null) return true;
+        int bf = Math.abs(getHeightRec(node.getLeft()) - getHeightRec(node.getRight()));
+        return bf <= 1 && esEquilibrado(node.getLeft()) && esEquilibrado(node.getRight());
+    }
+
+    public void mostrarNodosDesequilibrados() {
+        System.out.println("Nodos desequilibrados:");
+        mostrarNodosDesequilibradosRec(root);
+    }
+
+    private void mostrarNodosDesequilibradosRec(Node node) {
+        if (node != null) {
+            mostrarNodosDesequilibradosRec(node.getLeft());
+            int bf = getHeightRec(node.getLeft()) - getHeightRec(node.getRight());
+            if (bf <= -2 || bf >= 2) {
+                System.out.print(node.getValue() + " (fE = " + bf + ")");
+            }
+            mostrarNodosDesequilibradosRec(node.getRight());
+        }
+    }
 }
